@@ -11,3 +11,5 @@ This script uses [NBT](https://github.com/twoolie/NBT) to parse a chunk and turn
     ./script.py "/Users/troyfoster/Library/Application Support/minecraft/saves/First World" 0 0 > ex.scad
 
   5.  Then open the scad file with openscad, view and print.
+
+  [[Screen Shot 2019-04-05 at 9.49.08 PM.png|sample image from openscad]]
