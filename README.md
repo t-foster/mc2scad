@@ -12,4 +12,4 @@ This script uses [NBT](https://github.com/twoolie/NBT) to parse a chunk and turn
 
   5.  Then open the scad file with openscad, view and print.
 
-  [[https://github.com/t-foster/mc2scad/blob/master/ScreenShotSample.png|alt=sample image from openscad]]
+  ![sample image from openscad](https://github.com/t-foster/mc2scad/blob/master/ScreenShotSample.png)
