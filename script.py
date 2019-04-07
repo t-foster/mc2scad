@@ -7,6 +7,7 @@ Section specific code moved to AnvilChunk class
 
 import os, sys
 import colorsys
+import argparse
 
 # local module
 try:
@@ -19,7 +20,7 @@ except ImportError:
     sys.path.append(extrasearchpath)
 import nbt
 
-
+## block_ignore and block_colors taken from https://github.com/twoolie/NBT/blob/master/examples/map.py and modified
 # List of blocks to ignore
 # Uncomment all the lines to show underground structures
 # TODO: move this list into a separate config file
@@ -165,7 +166,13 @@ def printScadCube(x,y,z, r,g,b, type):
     print("minecraftCube(%i,%i,%i,[%.4f,%.4f,%.4f]);// %s"% (x, z, y, r,g,b, type))
 
 
-def main(world_folder, chunkx, chunkz):
+## globals, will be modified in __main__
+globalMinX = 0
+globalMinZ = 0
+globalMinY = 0
+## functionality here modified from https://github.com/twoolie/NBT/blob/master/examples/anvil_blockdata.py
+
+def main(world_folder, chunkx, chunkz, maxY):
 
     world = nbt.world.WorldFolder(world_folder)
     if not isinstance(world, nbt.world.AnvilWorldFolder):
@@ -175,11 +182,15 @@ def main(world_folder, chunkx, chunkz):
     blocks = {}
     block_colors_rgb = {}
 
+    offsetX = (chunkx - globalMinX) * 16
+    offsetZ = (chunkz - globalMinZ) * 16
+
+
     try:
         chunk = world.get_chunk(chunkx, chunkz)
         for z in range(0, 16):
             for x in range(0, 16):
-                for y in range(0,128):
+                for y in range(globalMinY,maxY+1):
 
                     b = chunk.get_block(x, y, z)
                     ## TODO handle more types
@@ -194,7 +205,7 @@ def main(world_folder, chunkx, chunkz):
 
                         if b in block_colors_rgb and b not in block_ignore:
                             rgb = block_colors_rgb[b]
-                            printScadCube(x, y, z, rgb[0], rgb[1], rgb[2], b)
+                            printScadCube(x+ offsetX, y-globalMinY, z+ offsetZ, rgb[0], rgb[1], rgb[2], b)
 
                         if b not in blocks:
                             blocks[b] = 0
@@ -222,26 +233,32 @@ def usage(message=None, appname=None):
 
 
 if __name__ == '__main__':
-    if (len(sys.argv) != 4):
-        usage()
-        sys.exit(64) # EX_USAGE
-    world_folder = sys.argv[1]
-    try:
-        chunkx = int(sys.argv[2])
-    except ValueError:
-        usage('Chunk X-coordinate should be an integer')
-        sys.exit(64) # EX_USAGE
-    try:
-        chunkz = int(sys.argv[3])
-    except ValueError:
-        usage('Chunk Z-coordinate should be an integer')
-        sys.exit(64) # EX_USAGE
+
+    parser = argparse.ArgumentParser(description='Convert minecraft save file into openscad cad file.')
+    parser.add_argument("--saveDirectory", required=True, dest="saveDirectory")
+    parser.add_argument("--minChunkX", required=True, dest="minChunkX")
+    parser.add_argument("--minChunkZ", required=True, dest="minChunkZ")
+    parser.add_argument("--maxChunkX", required=True, dest="maxChunkX")
+    parser.add_argument("--maxChunkZ", required=True, dest="maxChunkZ")
+    parser.add_argument("--minY", required=True, dest="minY")
+    parser.add_argument("--maxY", required=True, dest="maxY")
+    parseValues = parser.parse_args()
+
+    globalMinY = min(int(parseValues.minY), int(parseValues.maxY))
+    globalMinX = min(int(parseValues.minChunkX), int(parseValues.maxChunkX))
+    globalMinZ = min(int(parseValues.minChunkZ), int(parseValues.maxChunkZ))
+    maxChunkX = max(int(parseValues.minChunkX), int(parseValues.maxChunkX))
+    maxChunkZ = max(int(parseValues.minChunkZ), int(parseValues.maxChunkZ))
+    maxY = max(int(parseValues.minY), int(parseValues.maxY))
+
 
     # clean path name, eliminate trailing slashes:
-    world_folder = os.path.normpath(world_folder)
+    world_folder = parseValues.saveDirectory
     if (not os.path.exists(world_folder)):
         usage("No such folder as "+world_folder)
         sys.exit(72) # EX_IOERR
 
     printHelperModules()
-    sys.exit(main(world_folder, chunkx, chunkz))
+    for x in range(globalMinX, maxChunkX+1):
+        for z in range(globalMinZ, maxChunkZ+1):
+            main(world_folder, x, z, maxY)
