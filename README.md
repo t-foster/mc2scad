@@ -13,6 +13,7 @@ This script uses [NBT](https://github.com/twoolie/NBT) to parse a chunk and turn
   5.  Then open the scad file with openscad, view and print.
 
   ![sample image from openscad](https://github.com/t-foster/mc2scad/blob/master/ScreenShotSample.png)
+  6.  change the fastRender parameter from true to false to get rounded blocks
 
   TODO:
 
@@ -21,3 +22,5 @@ This script uses [NBT](https://github.com/twoolie/NBT) to parse a chunk and turn
     * handle more block types, including half blocks, doors, windows, steps, etc
     * handle "Inconceived chunk" errors
     * input map coordinate from f3 view
+    * open source licensing
+    * 

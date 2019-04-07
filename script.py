@@ -161,7 +161,7 @@ def printHelperModules():
     print("}")
 
 def printScadCube(x,y,z, r,g,b, type):
-    ## TODO call a helper function that can do minkowski optionally
+    ##  call a helper function that can do minkowski optionally
     print("minecraftCube(%i,%i,%i,[%.4f,%.4f,%.4f]);// %s"% (x, z, y, r,g,b, type))
 
 
