@@ -182,9 +182,9 @@ def main(world_folder, chunkx, chunkz, maxY):
     blocks = {}
     block_colors_rgb = {}
 
-    offsetX = (chunkx - globalMinX) * 16
+    offsetX = (globalMinX - chunkx ) * 16
     offsetZ = (chunkz - globalMinZ) * 16
-
+    print("// chunkX = %s, chunkZ = %s, offsetX = %s, offsetZ = %s"% (chunkx, chunkz, offsetX, offsetZ))
 
     try:
         chunk = world.get_chunk(chunkx, chunkz)
@@ -205,7 +205,7 @@ def main(world_folder, chunkx, chunkz, maxY):
 
                         if b in block_colors_rgb and b not in block_ignore:
                             rgb = block_colors_rgb[b]
-                            printScadCube(x+ offsetX, y-globalMinY, z+ offsetZ, rgb[0], rgb[1], rgb[2], b)
+                            printScadCube( offsetX-x, y-globalMinY, offsetZ+z , rgb[0], rgb[1], rgb[2], b)
 
                         if b not in blocks:
                             blocks[b] = 0
