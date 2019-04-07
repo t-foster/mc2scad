@@ -15,8 +15,9 @@ This script uses [NBT](https://github.com/twoolie/NBT) to parse a chunk and turn
   ![sample image from openscad](https://github.com/t-foster/mc2scad/blob/master/ScreenShotSample.png)
 
   TODO:
+
     * change input parameters to handle multiple chunks 
     * change input to handle y axis ranges
-    * write helper functions to give option in scad file of generating plain cubes or rounded ones
     * handle more block types, including half blocks, doors, windows, steps, etc
     * handle "Inconceived chunk" errors
+    * input map coordinate from f3 view
