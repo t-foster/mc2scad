@@ -26,8 +26,8 @@ import nbt
 # TODO: move this list into a separate config file
 
 block_ignore = [
-    'air','cave_air',  # At least this one
-#     'water', 'lava', 'snow', 'ice',
+    'air','cave_air',  # At least these ones
+#    'grass_block', 'water', 'lava', 'snow', 'ice',
 #    'grass', 'tall_grass', 'dead_bush',
 #    'seagrass', 'tall_seagrass', 'kelp', 'kelp_plant',
 #    'dandelion', 'poppy', 'oxeye_daisy', 'white_tulip',
@@ -40,7 +40,7 @@ block_ignore = [
 #    'acacia_log', 'spruce_log',
 #    'brown_mushroom', 'red_mushroom',
 #    'brown_mushroom_block', 'red_mushroom_block', 'mushroom_stem',
-#    'grass_block', 'grass_path', 'farmland', 'dirt',
+#     'grass_path', 'farmland', 'dirt',
 #    'stone', 'sand', 'gravel', 'clay',
 #    'sandstone', 'diorite', 'andesite', 'granite', 'obsidian',
 #    'coal_ore', 'iron_ore', 'gold_ore', 'diamond_ore',
@@ -143,7 +143,7 @@ block_colors_hsl = {
 def printHelperModules():
     print("fastRender = true;")
     print("")
-    print("$fn = 16;")
+    print("$fn = 8;")
     print("module minecraftCube(x,y,z,colorIn)")
     print("{")
     print("    if(fastRender == true)")
@@ -155,8 +155,8 @@ def printHelperModules():
     print("        color(colorIn) translate([x,y,z])")
     print("        minkowski()")
     print("        {")
-    print("            cube(0.58);")
-    print("            sphere(d = 0.58);")
+    print("            cube(0.65);")
+    print("            sphere(d = 0.65);")
     print("        }")
     print("    }")
     print("}")
