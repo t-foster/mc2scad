@@ -140,51 +140,52 @@ block_colors_hsl = {
     'white_wool':           {'h':0,   's':0,   'l':100},
     }
 
-def printHelperModules():
-    print("fastRender = true;")
-    print("")
-    print("$fn = 8;")
-    print("module minecraftCube(x,y,z,colorIn)")
-    print("{")
-    print("    if(fastRender == true)")
-    print("    {")
-    print("        color(colorIn) translate([x,y,z]) cube(1);")
-    print("    }")
-    print("    else")
-    print("    {")
-    print("        color(colorIn) translate([x,y,z])")
-    print("        minkowski()")
-    print("        {")
-    print("            cube(0.65);")
-    print("            sphere(d = 0.65);")
-    print("        }")
-    print("    }")
-    print("}")
+def printHelperModules(file):
+    file.write("fastRender = true;\n")
+    file.write("\n")
+    file.write("$fn = 8;\n")
+    file.write("module minecraftCube(x,y,z,colorIn)\n")
+    file.write("{\n")
+    file.write("    if(fastRender == true)\n")
+    file.write("    {\n")
+    file.write("        color(colorIn) translate([x,y,z]) cube(1);\n")
+    file.write("    }\n")
+    file.write("    else\n")
+    file.write("    {\n")
+    file.write("        color(colorIn) translate([x,y,z])\n")
+    file.write("        minkowski()\n")
+    file.write("        {\n")
+    file.write("            cube(0.65);\n")
+    file.write("            sphere(d = 0.65);\n")
+    file.write("        }\n")
+    file.write("    }\n")
+    file.write("}\n")
 
-def printScadCube(x,y,z, r,g,b, type):
+def printScadCube(x,y,z, r,g,b, type,file):
     ##  call a helper function that can do minkowski optionally
-    print("minecraftCube(%i,%i,%i,[%.4f,%.4f,%.4f]);// %s"% (x, z, y, r,g,b, type))
+    file.write("minecraftCube(%i,%i,%i,[%.4f,%.4f,%.4f]);// %s\n"% (x, z, y, r,g,b, type))
 
 
 ## globals, will be modified in __main__
 globalMinX = 0
 globalMinZ = 0
 globalMinY = 0
+
+blocks = {}
+block_colors_rgb = {}
 ## functionality here modified from https://github.com/twoolie/NBT/blob/master/examples/anvil_blockdata.py
 
-def main(world_folder, chunkx, chunkz, maxY):
+def main(world_folder, chunkx, chunkz, maxY, file):
 
     world = nbt.world.WorldFolder(world_folder)
     if not isinstance(world, nbt.world.AnvilWorldFolder):
         print("%s is not an Anvil world" % (world_folder))
         return 65 # EX_DATAERR
 
-    blocks = {}
-    block_colors_rgb = {}
 
     offsetX = (globalMinX - chunkx ) * 16
     offsetZ = (chunkz - globalMinZ) * 16
-    print("// chunkX = %s, chunkZ = %s, offsetX = %s, offsetZ = %s"% (chunkx, chunkz, offsetX, offsetZ))
+    file.write("// chunkX = %s, chunkZ = %s, offsetX = %s, offsetZ = %s\n"% (chunkx, chunkz, offsetX, offsetZ))
 
     try:
         chunk = world.get_chunk(chunkx, chunkz)
@@ -205,24 +206,23 @@ def main(world_folder, chunkx, chunkz, maxY):
 
                         if b in block_colors_rgb and b not in block_ignore:
                             rgb = block_colors_rgb[b]
-                            printScadCube( offsetX-x, y-globalMinY, offsetZ+z , rgb[0], rgb[1], rgb[2], b)
+                            printScadCube( offsetX-x, y-globalMinY, offsetZ+z , rgb[0], rgb[1], rgb[2], b, file)
 
                         if b not in blocks:
                             blocks[b] = 0
                         blocks[b] = blocks[b] + 1
 
-        #print("Chunk (%i,%i) Height %i" % (chunkx, chunkz, y))
-        # print(block_colors_rgb)
-        for n in blocks.keys():
-            print("// %s: %i" % (n, blocks[n]))
-            if n not in block_colors_rgb:
-                print("  // unhandled type!!!!")
 
     except nbt.region.InconceivedChunk:
         print("Inconceived chunk")
 
     return 0 # NOERR
 
+def printBlockCounts():
+    for n in blocks.keys():
+        print("// %s: %i" % (n, blocks[n]))
+        if n not in block_colors_rgb:
+            print("  // unhandled type!!!!")
 
 def usage(message=None, appname=None):
     if appname == None:
@@ -242,6 +242,7 @@ if __name__ == '__main__':
     parser.add_argument("--maxChunkZ", required=True, dest="maxChunkZ")
     parser.add_argument("--minY", required=True, dest="minY")
     parser.add_argument("--maxY", required=True, dest="maxY")
+    parser.add_argument("--outfile", required=True, dest="outfile")
     parseValues = parser.parse_args()
 
     globalMinY = min(int(parseValues.minY), int(parseValues.maxY))
@@ -251,6 +252,7 @@ if __name__ == '__main__':
     maxChunkZ = max(int(parseValues.minChunkZ), int(parseValues.maxChunkZ))
     maxY = max(int(parseValues.minY), int(parseValues.maxY))
 
+    file = open(parseValues.outfile, 'w')
 
     # clean path name, eliminate trailing slashes:
     world_folder = parseValues.saveDirectory
@@ -258,7 +260,10 @@ if __name__ == '__main__':
         usage("No such folder as "+world_folder)
         sys.exit(72) # EX_IOERR
 
-    printHelperModules()
+    printHelperModules(file)
     for x in range(globalMinX, maxChunkX+1):
         for z in range(globalMinZ, maxChunkZ+1):
-            main(world_folder, x, z, maxY)
+            main(world_folder, x, z, maxY, file)
+
+    printBlockCounts()
+    file.close()
